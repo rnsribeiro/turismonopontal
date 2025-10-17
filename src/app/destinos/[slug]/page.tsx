@@ -3,13 +3,21 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { destinations } from "@/lib/data";
 
-export async function generateStaticParams(){
-  return destinations.map(d => ({ slug: d.slug }));
+type Params = { slug: string };
+
+export async function generateStaticParams() {
+  return destinations.map((d) => ({ slug: d.slug }));
 }
 
-export default function DestinationPage({ params }: { params: { slug: string } }){
-  const dest = destinations.find(d => d.slug === params.slug);
-  if(!dest) return notFound();
+export default async function DestinationPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { slug } = await params;
+
+  const dest = destinations.find((d) => d.slug === slug);
+  if (!dest) notFound();
 
   return (
     <article className="container py-10">
@@ -22,7 +30,13 @@ export default function DestinationPage({ params }: { params: { slug: string } }
       </div>
 
       <div className="mt-6 card">
-        <Image src={dest.cover} alt={dest.name} width={1600} height={900} className="w-full h-72 object-cover"/>
+        <Image
+          src={dest.cover}
+          alt={dest.name}
+          width={1600}
+          height={900}
+          className="w-full h-72 object-cover"
+        />
       </div>
 
       <div className="prose prose-zinc max-w-none mt-6">
@@ -32,7 +46,14 @@ export default function DestinationPage({ params }: { params: { slug: string } }
       <h2 className="text-xl font-semibold mt-8 mb-3">Galeria</h2>
       <div className="grid grid-auto-fill gap-3">
         {dest.gallery.map((g, i) => (
-          <Image key={i} src={g} alt={`${dest.name} foto ${i+1}`} width={1200} height={800} className="h-52 w-full object-cover rounded-xl"/>
+          <Image
+            key={i}
+            src={g}
+            alt={`${dest.name} foto ${i + 1}`}
+            width={1200}
+            height={800}
+            className="h-52 w-full object-cover rounded-xl"
+          />
         ))}
       </div>
 
@@ -43,7 +64,9 @@ export default function DestinationPage({ params }: { params: { slug: string } }
             {dest.events.map((e, i) => (
               <li key={i} className="card p-4">
                 <h3 className="font-bold">{e.title}</h3>
-                <p className="text-sm text-zinc-600">{e.date} · {e.location}</p>
+                <p className="text-sm text-zinc-600">
+                  {e.date} · {e.location}
+                </p>
                 <p className="mt-2 text-sm">{e.description}</p>
               </li>
             ))}
